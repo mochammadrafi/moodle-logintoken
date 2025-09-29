@@ -51,18 +51,18 @@
 
 #### 1. Login with Token
 ```bash
-curl "https://your-moodle-site.com/auth/logintoken.php?wstoken=YOUR_TOKEN"
+curl "https://your-moodle-site.com/auth/login.php?wstoken=YOUR_TOKEN"
 ```
 
 #### 2. Validate Token
 ```bash
-curl "https://your-moodle-site.com/auth/logintoken.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token"
+curl "https://your-moodle-site.com/auth/login.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token"
 ```
 
 ### JavaScript Example
 ```javascript
 // Login with token
-fetch('/auth/logintoken.php?wstoken=YOUR_TOKEN')
+fetch('/auth/login.php?wstoken=YOUR_TOKEN')
   .then(response => response.json())
   .then(data => {
     if (data.success) {
@@ -74,7 +74,7 @@ fetch('/auth/logintoken.php?wstoken=YOUR_TOKEN')
   });
 
 // Validate token
-fetch('/auth/logintoken.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token')
+fetch('/auth/login.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token')
   .then(response => response.json())
   .then(data => {
     if (data.valid) {
@@ -89,7 +89,7 @@ fetch('/auth/logintoken.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_valid
 ```php
 // Login with token
 $token = 'your_wstoken_here';
-$url = 'https://your-moodle-site.com/auth/logintoken.php?wstoken=' . urlencode($token);
+$url = 'https://your-moodle-site.com/auth/login.php?wstoken=' . urlencode($token);
 
 $response = file_get_contents($url);
 $data = json_decode($response, true);
@@ -102,7 +102,7 @@ if ($data['success']) {
 }
 
 // Validate token
-$validate_url = 'https://your-moodle-site.com/auth/logintoken.php?wstoken=' . urlencode($token) . '&wsfunction=local_logintoken_validate_token';
+$validate_url = 'https://your-moodle-site.com/auth/login.php?wstoken=' . urlencode($token) . '&wsfunction=local_logintoken_validate_token';
 $validate_response = file_get_contents($validate_url);
 $validate_data = json_decode($validate_response, true);
 

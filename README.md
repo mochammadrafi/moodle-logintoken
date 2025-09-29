@@ -50,29 +50,29 @@ The plugin works with tokens from:
 
 #### 1. Login with Token
 ```
-GET /local/logintoken/auth/logintoken.php?wstoken=YOUR_TOKEN
+GET /local/logintoken/auth/login.php?wstoken=YOUR_TOKEN
 ```
 
 #### 2. Validate Token
 ```
-GET /local/logintoken/auth/logintoken.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token
+GET /local/logintoken/auth/login.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token
 ```
 
 ### Example Usage
 
 #### Login with Token (Custom Service)
 ```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/logintoken.php?wstoken=abc123def456"
+curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc123def456"
 ```
 
 #### Login with Token (Mobile App Service)
 ```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/logintoken.php?wstoken=mobile_token_here"
+curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=mobile_token_here"
 ```
 
 #### Validate Token
 ```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/logintoken.php?wstoken=abc123def456&wsfunction=local_logintoken_validate_token"
+curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc123def456&wsfunction=local_logintoken_validate_token"
 ```
 
 ### Response Format
@@ -129,10 +129,10 @@ curl "https://your-moodle-site.com/local/logintoken/auth/logintoken.php?wstoken=
 
 ### Code Structure
 
--   `auth/logintoken.php`: Main API endpoint for token-based authentication
+-   `auth/login.php`: Main API endpoint for token-based authentication
 -   `settings.php`: Defines the plugin settings for configuration
 -   `lib.php`: Contains the core logic for login page handling
--   `lang/en/local_logintoken.php`: Contains language strings for the plugin
+-   `lang/en/local_login.php`: Contains language strings for the plugin
 
 ### Security Features
 

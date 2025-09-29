@@ -3,7 +3,7 @@
  * Login Token API endpoint
  * 
  * This endpoint handles authentication using Moodle web service tokens (wstoken)
- * Usage: /auth/logintoken.php?wstoken=xxxx
+ * Usage: /auth/login.php?wstoken=xxxx
  * 
  * @package    local_logintoken
  * @copyright  2025 Mochammad Rafi
