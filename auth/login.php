@@ -16,8 +16,9 @@ require_once($CFG->libdir . '/authlib.php');
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// Get the wstoken from the request
+// Get the wstoken and wantsurl from the request
 $wstoken = optional_param('wstoken', '', PARAM_RAW);
+$wantsurl = optional_param('wantsurl', '', PARAM_URL);
 
 // Validate token parameter
 if (empty($wstoken)) {
@@ -75,27 +76,41 @@ try {
     $token->lastaccess = time();
     $DB->update_record('external_tokens', $token);
     
-    // Get the redirect URL from session or default
-    $redirect_url = $SESSION->wantsurl ?? $CFG->wwwroot;
+    // Get the redirect URL - prioritize wantsurl parameter, then session, then default
+    if (!empty($wantsurl)) {
+        $redirect_url = $wantsurl;
+    } elseif (!empty($SESSION->wantsurl)) {
+        $redirect_url = $SESSION->wantsurl;
+    } else {
+        $redirect_url = $CFG->wwwroot;
+    }
     
     // Clear the wantsurl from session
     unset($SESSION->wantsurl);
     
-    // Return success response
-    echo json_encode([
-        'success' => true,
-        'message' => 'Login successful',
-        'user' => [
-            'id' => $user->id,
-            'username' => $user->username,
-            'firstname' => $user->firstname,
-            'lastname' => $user->lastname,
-            'email' => $user->email,
-            'fullname' => fullname($user)
-        ],
-        'redirect_url' => $redirect_url,
-        'session_id' => session_id()
-    ]);
+    $auto_redirect = optional_param('redirect', false, PARAM_BOOL);
+    
+    // If auto_redirect is false, return JSON response
+    if (!$auto_redirect) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'fullname' => fullname($user)
+            ],
+            'redirect_url' => $redirect_url,
+            'session_id' => session_id()
+        ]);
+    } else {
+        // Auto redirect to the specified URL
+        header('Location: ' . $redirect_url);
+        exit;
+    }
     
 } catch (Exception $e) {
     http_response_code(500);
