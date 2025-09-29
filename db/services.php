@@ -28,13 +28,23 @@ $functions = array(
         'ajax'          => true,
         'loginrequired' => false,
     ),
+    'local_logintoken_check_session' => array(
+        'classname'     => 'local_logintoken_external',
+        'methodname'    => 'check_session',
+        'classpath'     => 'local/logintoken/classes/external.php',
+        'type'          => 'read',
+        'capabilities' => '',
+        'ajax'          => true,
+        'loginrequired' => false,
+    ),
 );
 
 $services = array(
     'Login Token Service' => array(
         'functions' => array(
             'local_logintoken_login_with_token',
-            'local_logintoken_validate_token'
+            'local_logintoken_validate_token',
+            'local_logintoken_check_session'
         ),
         'restrictedusers' => 0,
         'enabled' => 1,

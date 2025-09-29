@@ -8,6 +8,7 @@ A Moodle plugin for token-based authentication using Moodle web service tokens (
 -   API-based authentication using Moodle web service tokens
 -   Support for both custom Login Token service and Moodle Mobile App service tokens
 -   Simple REST endpoint for token validation and session creation
+-   Session check functionality to detect if user is already logged in
 -   Secure token validation with expiration checking
 -   JSON response format for easy integration
 -   Automatic session management
@@ -39,6 +40,7 @@ This plugin provides Moodle web service functions for token-based authentication
 
 1. **`local_logintoken_login_with_token`** - Login user with web service token
 2. **`local_logintoken_validate_token`** - Validate web service token
+3. **`local_logintoken_check_session`** - Check if user has an active session
 
 ### Supported Services
 
@@ -58,21 +60,25 @@ GET /local/logintoken/auth/login.php?wstoken=YOUR_TOKEN
 GET /local/logintoken/auth/login.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token
 ```
 
-### Example Usage
-
-#### Login with Token (Custom Service)
-```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc123def456"
+#### 3. Check Session
+```
+GET /local/logintoken/auth/check_session.php
 ```
 
-#### Login with Token (Mobile App Service)
+### Example Usage
+#### Login with Token (Mobile App Service and Custom Server)
 ```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=mobile_token_here"
+curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=YOUR_TOKEN"
 ```
 
 #### Validate Token
 ```bash
-curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc123def456&wsfunction=local_logintoken_validate_token"
+curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=YOUR_TOKEN&wsfunction=local_logintoken_validate_token"
+```
+
+#### Check Session (No Authentication Required)
+```bash
+curl "https://your-moodle-site.com/local/logintoken/auth/check_session.php"
 ```
 
 ### Response Format
@@ -116,6 +122,43 @@ curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc12
 }
 ```
 
+#### Session Check Response (User Logged In):
+```json
+{
+    "logged_in": true,
+    "message": "User is logged in",
+    "user": {
+        "id": 123,
+        "username": "john.doe",
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "john.doe@example.com",
+        "fullname": "John Doe"
+    },
+    "session_info": {
+        "session_id": "abc123def456",
+        "session_start": 1701234567,
+        "last_activity": 1701234567,
+        "user_agent": "Mozilla/5.0...",
+        "ip_address": "192.168.1.100"
+    }
+}
+```
+
+#### Session Check Response (User Not Logged In):
+```json
+{
+    "logged_in": false,
+    "message": "No active session found",
+    "user": null,
+    "session_info": {
+        "session_id": "abc123def456",
+        "session_start": null,
+        "last_activity": null
+    }
+}
+```
+
 #### Error Response:
 ```json
 {
@@ -125,11 +168,41 @@ curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc12
 }
 ```
 
+## Check Session Use Cases
+
+The Check Session functionality is useful for:
+
+- **Pre-login validation**: Check if user is already logged in before showing login form
+- **Session monitoring**: Monitor active user sessions in your application
+- **User status verification**: Verify if user account is active and not suspended
+- **Session information**: Get detailed session data including IP address and user agent
+- **Authentication state**: Determine authentication status without requiring tokens
+
+### Example JavaScript Integration
+
+```javascript
+// Check if user is already logged in
+fetch('/local/logintoken/auth/check_session.php')
+  .then(response => response.json())
+  .then(data => {
+    if (data.logged_in) {
+      console.log('User is logged in:', data.user.username);
+      // Redirect to dashboard or show user menu
+      window.location.href = '/dashboard';
+    } else {
+      console.log('User not logged in');
+      // Show login form
+      showLoginForm();
+    }
+  });
+```
+
 ## Development
 
 ### Code Structure
 
 -   `auth/login.php`: Main API endpoint for token-based authentication
+-   `auth/check_session.php`: Session check endpoint (no authentication required)
 -   `settings.php`: Defines the plugin settings for configuration
 -   `lib.php`: Contains the core logic for login page handling
 -   `lang/en/local_login.php`: Contains language strings for the plugin
@@ -139,6 +212,7 @@ curl "https://your-moodle-site.com/local/logintoken/auth/login.php?wstoken=abc12
 -   Token validation against Moodle's external_tokens table
 -   Token expiration checking
 -   User status validation (not deleted or suspended)
+-   Session state checking without authentication
 -   HTTPS requirement option
 -   Session management
 

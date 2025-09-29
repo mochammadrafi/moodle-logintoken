@@ -187,4 +187,102 @@ class local_logintoken_external extends external_api {
             'Token validation result'
         );
     }
+
+    /**
+     * Returns description of method parameters for check_session
+     * 
+     * @return external_function_parameters
+     */
+    public static function check_session_parameters() {
+        return new external_function_parameters(
+            array()
+        );
+    }
+
+    /**
+     * Check if user has an active session
+     * 
+     * @return array Session check result
+     */
+    public static function check_session() {
+        global $USER, $DB;
+
+        // Validate parameters
+        $params = self::validate_parameters(self::check_session_parameters(), array());
+
+        // Check if user is authenticated
+        if (!$USER || $USER->id <= 1) {
+            return array(
+                'logged_in' => false,
+                'message' => 'No active session found',
+                'user' => null
+            );
+        }
+        
+        // Check if user is active
+        if ($USER->deleted || $USER->suspended) {
+            return array(
+                'logged_in' => false,
+                'message' => 'User account is inactive',
+                'user' => null
+            );
+        }
+
+        // Get session information
+        $session_info = array(
+            'session_id' => session_id(),
+            'session_start' => $_SESSION['SESSION_START'] ?? null,
+            'last_activity' => $_SESSION['LAST_ACTIVITY'] ?? null
+        );
+
+        return array(
+            'logged_in' => true,
+            'message' => 'User is logged in',
+            'user' => array(
+                'id' => $USER->id,
+                'username' => $USER->username,
+                'firstname' => $USER->firstname,
+                'lastname' => $USER->lastname,
+                'email' => $USER->email,
+                'fullname' => fullname($USER)
+            ),
+            'session_info' => $session_info
+        );
+    }
+
+    /**
+     * Returns description of method result value for check_session
+     * 
+     * @return external_single_structure
+     */
+    public static function check_session_returns() {
+        return new external_single_structure(
+            array(
+                'logged_in' => new external_value(PARAM_BOOL, 'Whether user is logged in'),
+                'message' => new external_value(PARAM_TEXT, 'Session status message'),
+                'user' => new external_single_structure(
+                    array(
+                        'id' => new external_value(PARAM_INT, 'User ID'),
+                        'username' => new external_value(PARAM_USERNAME, 'Username'),
+                        'firstname' => new external_value(PARAM_TEXT, 'First name'),
+                        'lastname' => new external_value(PARAM_TEXT, 'Last name'),
+                        'email' => new external_value(PARAM_EMAIL, 'Email address'),
+                        'fullname' => new external_value(PARAM_TEXT, 'Full name')
+                    ),
+                    'User information',
+                    VALUE_OPTIONAL
+                ),
+                'session_info' => new external_single_structure(
+                    array(
+                        'session_id' => new external_value(PARAM_RAW, 'Session ID'),
+                        'session_start' => new external_value(PARAM_INT, 'Session start timestamp', VALUE_OPTIONAL),
+                        'last_activity' => new external_value(PARAM_INT, 'Last activity timestamp', VALUE_OPTIONAL)
+                    ),
+                    'Session information',
+                    VALUE_OPTIONAL
+                )
+            ),
+            'Session check result'
+        );
+    }
 }
